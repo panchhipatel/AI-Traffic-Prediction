@@ -386,8 +386,14 @@ else:
                             with col2:
                                 st.metric("Duration", f"{int(route_info['duration_min'])} min")
                             with col3:
-                                st.metric("Avg Speed", f"{route_info['distance_km']/(route_info['duration_min']/60):.0f} km/h")
-                        
+                                duration = route_info.get('duration_min', 0)
+                                distance = route_info.get('distance_km', 0)
+
+                                if duration > 0:
+                                    avg_speed = distance / (duration / 60)
+                                    st.metric("Avg Speed", f"{avg_speed:.0f} km/h")
+                                else:
+                                    st.metric("Avg Speed", "N/A")
                         # 2️⃣ INTERACTIVE MAP (MIDDLE)
                         route_map = create_route_map(
                             start_coords, end_coords, route_coords, 
@@ -430,14 +436,8 @@ else:
                     est_time = 30 + (route_congestion / 5)  # Simplified estimate
                     st.metric("Est. Travel Time", f"{est_time:.0f} mins")
                 with col3:
-                    duration = route_info.get('duration_min', 0)
-                    distance = route_info.get('distance_km', 0)
-
-                    if duration > 0:
-                        avg_speed = distance / (duration / 60)
-                        st.metric("Avg Speed", f"{avg_speed:.0f} km/h")
-                    else:
-                        st.metric("Avg Speed", "N/A")
+                    delay = max(0, (route_congestion - 50) / 3)
+                    st.metric("Expected Delay", f"{delay:.0f} mins")
                 
                 st.divider()
                 
